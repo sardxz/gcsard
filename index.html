@@ -32,8 +32,8 @@
     .btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
     .table-container{padding:28px;overflow-x:auto}
     table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,.08)}
-    th{background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#fff;padding:14px;font-weight:700;text-align:left}
-    td{padding:14px;border-bottom:1px solid #eee}
+    th{background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#fff;padding:14px;font-weight:700;text-align:left;white-space:nowrap}
+    td{padding:14px;border-bottom:1px solid #eee;white-space:nowrap}
     tr:hover{background:#f8f9ff}
     .profit{color:#16a34a;font-weight:700}
     .loss{color:#dc2626;font-weight:700}
@@ -47,7 +47,7 @@
     .settings{padding:16px;background:#f1f5f9;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
     .settings .form-group input{background:#fff}
     .auth-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000}
-    .auth-card{background:#fff;padding:22px;border-radius:12px;min-width:320px;max-width:420px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+    .auth-card{background:#fff;padding:22px;border-radius:12px;min-width:320px;max-width:480px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
     .auth-card h3{margin-bottom:12px}
     .auth-card input{width:100%;margin:6px 0 10px;padding:10px;border:2px solid #e5e7eb;border-radius:8px}
     .auth-card .row{display:flex;gap:8px}
@@ -104,8 +104,19 @@
           <input type="date" id="tradeDate" />
         </div>
         <div class="form-group">
+          <label>Paridade</label>
+          <input type="text" id="pair" placeholder="ex: ADAUSDT" />
+        </div>
+        <div class="form-group">
           <label>Valor do Trade</label>
           <input type="number" id="tradeValue" step="0.01" readonly />
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="position">
+            <option value="long">LONG</option>
+            <option value="short">SHORT</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Resultado</label>
@@ -132,7 +143,20 @@
 
     <div class="table-container">
       <table id="tradesTable">
-        <thead><tr><th>Data</th><th>Valor Trade</th><th>Tipo</th><th>%</th><th>Resultado</th><th>Novo Valor</th><th>Observações</th><th>Ações</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Paridade</th>
+            <th>Valor Trade</th>
+            <th>Tipo</th>
+            <th>Resultado</th>
+            <th>PNL (%)</th>
+            <th>PNL ($)</th>
+            <th>Novo Valor</th>
+            <th>Observações</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
         <tbody id="tradesBody"></tbody>
       </table>
     </div>
@@ -157,8 +181,8 @@
 
   <script>
     // ======= CONFIGURE AQUI =======
-    const SUPABASE_URL = 'https://ayoltukjvrpcwumsauan.supabase.co'; // <-- troque
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5b2x0dWtqdnJwY3d1bXNhdWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDUwMTQsImV4cCI6MjA3MTYyMTAxNH0.pCQouhf6ZazBjSIArOmWPdF4HOmh1r_L4NLzrTm7bmE';               // <-- troque
+    const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co'; // <-- troque
+    const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';               // <-- troque
     // ==============================
 
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -255,18 +279,20 @@
     }
     async function addTrade(){
       const date = document.getElementById('tradeDate').value;
+      const pair = document.getElementById('pair').value.trim();
       const value = Number(document.getElementById('tradeValue').value);
-      const type = document.getElementById('resultType').value; // 'profit' | 'loss'
+      const position = document.getElementById('position').value; // 'long' | 'short'
+      const type = document.getElementById('resultType').value;  // 'profit' | 'loss'
       const pct  = Number(document.getElementById('percentage').value);
       const obs  = document.getElementById('observations').value||'';
       if(!user){ notify('Faça login primeiro.','error'); return; }
-      if(!date || !value || !pct){ notify('Preencha data, valor e %','error'); return; }
+      if(!date || !pair || !value || !pct){ notify('Preencha data, paridade, valor e %','error'); return; }
 
       const resAbs = +(value * (pct/100)).toFixed(2);
       const result = type==='profit' ? resAbs : -resAbs;
       const newValue = +(value + result).toFixed(2);
 
-      const payload = { user_id:user.id, trade_date: date, value_trade: value, type, percent: pct, result, new_value:newValue, observations: obs };
+      const payload = { user_id:user.id, trade_date: date, pair, position, value_trade: value, type, percent: pct, result, new_value:newValue, observations: obs };
       const { data, error } = await sb.from('trades').insert(payload).select().single();
       if(error){ notify(error.message,'error'); return; }
 
@@ -285,8 +311,11 @@
       render();
     }
     function exportCSV(){
-      const headers = ['Data','Valor Trade','Tipo','Percentual','Resultado','Novo Valor','Observações'];
-      const rows = trades.map(t=>[t.trade_date,t.value_trade,t.type,t.percent+'%',t.result,t.new_value, `"${(t.observations||'').replace(/"/g,'""')}"`]);
+      const headers = ['Data','Paridade','Valor Trade','Tipo','Resultado','PNL (%)','PNL ($)','Novo Valor','Observações'];
+      const rows = trades.map(t=>{
+        const signedPct = (t.type==='loss' ? -Number(t.percent||0) : Number(t.percent||0));
+        return [t.trade_date,t.pair||'',t.value_trade,t.position?.toUpperCase()||'',t.type,(signedPct)+'%',t.result,t.new_value, `"${(t.observations||'').replace(/"/g,'""')}"`];
+      });
       const csv = [headers.join(','), ...rows.map(r=>r.join(','))].join('\n');
       const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
@@ -321,11 +350,14 @@
       const tbody = document.getElementById('tradesBody'); tbody.innerHTML='';
       trades.forEach(t=>{
         const tr = document.createElement('tr');
+        const signedPct = (t.type==='loss' ? -Number(t.percent||0) : Number(t.percent||0));
         tr.innerHTML = `
           <td>${fmtDate(t.trade_date)}</td>
+          <td>${t.pair||''}</td>
           <td>${fmtMoney(t.value_trade)}</td>
+          <td>${(t.position||'').toUpperCase()}</td>
           <td><span class="${t.type}">${t.type==='profit'?'Lucro':'Prejuízo'}</span></td>
-          <td>${t.percent}%</td>
+          <td>${signedPct}%</td>
           <td class="${t.type}">${fmtMoney(t.result)}</td>
           <td>${fmtMoney(t.new_value)}</td>
           <td>${t.observations||''}</td>
@@ -362,3 +394,4 @@
   </script>
 </body>
 </html>
+
