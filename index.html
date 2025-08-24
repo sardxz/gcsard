@@ -3,16 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Sistema completo para rastreamento e análise de trades com métricas avançadas">
-  <title>Trading Tracker — Sistema Avançado</title>
-  
-  <!-- CSP - Content Security Policy para maior segurança -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
-  
-  <!-- Bibliotecas Externas -->
+  <title>Trading Tracker — Sistema Corrigido</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-  
   <style>
     /* === RESET E VARIÁVEIS CSS === */
     :root {
@@ -177,15 +169,6 @@
       color: var(--gray-900);
     }
 
-    .stat-card .trend {
-      font-size: 0.8em;
-      margin-top: 4px;
-      font-weight: 500;
-    }
-
-    .trend.up { color: var(--success-color); }
-    .trend.down { color: var(--danger-color); }
-
     /* === CONFIGURAÇÕES === */
     .settings {
       padding: 28px;
@@ -305,21 +288,6 @@
       overflow: hidden;
     }
 
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    .btn:hover::before {
-      left: 100%;
-    }
-
     .btn:hover {
       transform: translateY(-1px);
       box-shadow: var(--shadow-md);
@@ -406,54 +374,6 @@
       font-weight: 600;
     }
 
-    .table-controls {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .search-box {
-      position: relative;
-      min-width: 250px;
-    }
-
-    .search-box input {
-      width: 100%;
-      padding: 10px 40px 10px 16px;
-      border: 2px solid var(--gray-200);
-      border-radius: var(--border-radius);
-      font-size: 14px;
-      transition: var(--transition);
-    }
-
-    .search-box input:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-    }
-
-    .search-box::after {
-      content: '🔍';
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-    }
-
-    .filter-select {
-      padding: 10px 16px;
-      border: 2px solid var(--gray-200);
-      border-radius: var(--border-radius);
-      background: var(--white);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .filter-select:focus {
-      border-color: var(--primary-color);
-      outline: none;
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -473,24 +393,6 @@
       position: sticky;
       top: 0;
       z-index: 10;
-    }
-
-    th.sortable {
-      cursor: pointer;
-      user-select: none;
-    }
-
-    th.sortable:hover {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
-    }
-
-    th.sorted::after {
-      content: ' ↑';
-      font-weight: normal;
-    }
-
-    th.sorted.desc::after {
-      content: ' ↓';
     }
 
     td {
@@ -669,42 +571,6 @@
       line-height: 1.4;
     }
 
-    /* === GRÁFICOS === */
-    .charts-section {
-      padding: 28px;
-      background: var(--white);
-      border-bottom: 1px solid var(--gray-200);
-    }
-
-    .charts-section h2 {
-      color: var(--gray-700);
-      margin-bottom: 20px;
-      font-size: 1.3em;
-      font-weight: 600;
-    }
-
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 30px;
-    }
-
-    .chart-container {
-      background: var(--white);
-      border-radius: var(--border-radius-lg);
-      padding: 20px;
-      box-shadow: var(--shadow-md);
-      position: relative;
-      height: 300px;
-    }
-
-    .chart-title {
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: 600;
-      color: var(--gray-700);
-    }
-
     /* === RESPONSIVIDADE === */
     @media (max-width: 768px) {
       body {
@@ -727,8 +593,7 @@
       .stats-grid,
       .settings,
       .controls,
-      .table-container,
-      .charts-section {
+      .table-container {
         padding: 20px;
       }
 
@@ -773,42 +638,6 @@
       th, td {
         padding: 12px 8px;
       }
-
-      .search-box {
-        min-width: 200px;
-      }
-
-      .charts-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .chart-container {
-        height: 250px;
-      }
-    }
-
-    /* === MODO ESCURO (Preparação) === */
-    @media (prefers-color-scheme: dark) {
-      /* Implementação futura do modo escuro */
-    }
-
-    /* === ANIMAÇÕES === */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(-20px); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
-    .fade-in {
-      animation: fadeIn 0.3s ease;
-    }
-
-    .slide-in {
-      animation: slideIn 0.3s ease;
     }
 
     /* === ACESSIBILIDADE === */
@@ -848,7 +677,7 @@
     <!-- === CABEÇALHO COM AUTENTICAÇÃO E STATUS === -->
     <div class="header">
       <div class="auth-bar">
-        <small id="whoami" aria-label="Status do usuário">Deslogado</small>
+        <small id="whoami" aria-label="Status do usuário">Carregando...</small>
         <button class="btn btn-secondary" id="btnLogin" aria-label="Fazer login">
           <span>🔐</span> Entrar
         </button>
@@ -859,7 +688,7 @@
       
       <div class="cloud-status" role="status" aria-live="polite">
         <div class="status-dot" id="statusDot" aria-hidden="true"></div>
-        <span id="cloudStatus">Offline</span>
+        <span id="cloudStatus">Conectando...</span>
       </div>
       
       <h1>📈 Trading Tracker</h1>
@@ -872,34 +701,28 @@
       <div class="settings-grid">
         <div class="form-group">
           <label for="bankInitial" class="required">Banca Inicial (USDT)</label>
-          <input type="number" id="bankInitial" step="0.01" placeholder="ex: 59000" 
-                 aria-describedby="bankInitial-help" required />
+          <input type="number" id="bankInitial" step="0.01" placeholder="ex: 59000" required />
           <div class="error-message" id="bankInitial-error"></div>
-          <small id="bankInitial-help">Valor total da sua banca para trading</small>
+          <small>Valor total da sua banca para trading</small>
         </div>
         
         <div class="form-group">
           <label for="initialTrade" class="required">Valor 1º Trade (USDT)</label>
-          <input type="number" id="initialTrade" step="0.01" placeholder="ex: 2360" 
-                 aria-describedby="initialTrade-help" required />
+          <input type="number" id="initialTrade" step="0.01" placeholder="ex: 2360" required />
           <div class="error-message" id="initialTrade-error"></div>
-          <small id="initialTrade-help">Valor do primeiro trade da sua estratégia</small>
+          <small>Valor do primeiro trade da sua estratégia</small>
         </div>
         
         <div class="form-group">
           <label for="percentTarget" class="required">Percentual Alvo por Trade (%)</label>
-          <input type="number" id="percentTarget" step="0.01" placeholder="ex: 12" 
-                 aria-describedby="percentTarget-help" required />
+          <input type="number" id="percentTarget" step="0.01" placeholder="ex: 12" required />
           <div class="error-message" id="percentTarget-error"></div>
-          <small id="percentTarget-help">Meta de lucro/prejuízo por operação</small>
+          <small>Meta de lucro/prejuízo por operação</small>
         </div>
         
         <div style="display:flex;align-items:flex-end;gap:12px">
           <button class="btn btn-success" id="saveSettings" aria-label="Salvar configurações">
             <span>💾</span> Salvar Configurações
-          </button>
-          <button class="btn btn-warning" id="backupData" aria-label="Fazer backup dos dados">
-            <span>☁️</span> Backup
           </button>
         </div>
       </div>
@@ -907,56 +730,34 @@
 
     <!-- === GRID DE ESTATÍSTICAS E MÉTRICAS === -->
     <div class="stats-grid">
-      <div class="stat-card" tabindex="0" role="region" aria-labelledby="total-balance-title">
-        <h3 id="total-balance-title">Banca Total</h3>
-        <div class="value" id="totalBalance" aria-label="Valor da banca total">$0.00</div>
-        <div class="trend" id="totalBalanceTrend"></div>
+      <div class="stat-card">
+        <h3>Banca Total</h3>
+        <div class="value" id="totalBalance">$0.00</div>
       </div>
       
-      <div class="stat-card" tabindex="0" role="region" aria-labelledby="next-trade-title">
-        <h3 id="next-trade-title">Próximo Trade</h3>
-        <div class="value" id="nextTradeValue" aria-label="Valor do próximo trade">$0.00</div>
-        <div class="trend" id="nextTradeTrend"></div>
+      <div class="stat-card">
+        <h3>Próximo Trade</h3>
+        <div class="value" id="nextTradeValue">$0.00</div>
       </div>
       
-      <div class="stat-card" tabindex="0" role="region" aria-labelledby="total-trades-title">
-        <h3 id="total-trades-title">Total de Trades</h3>
-        <div class="value" id="totalTrades" aria-label="Número total de trades">0</div>
-        <div class="trend" id="totalTradesTrend"></div>
+      <div class="stat-card">
+        <h3>Total de Trades</h3>
+        <div class="value" id="totalTrades">0</div>
       </div>
       
-      <div class="stat-card" tabindex="0" role="region" aria-labelledby="win-rate-title">
-        <h3 id="win-rate-title">Win Rate</h3>
-        <div class="value" id="winRate" aria-label="Taxa de acerto">0%</div>
-        <div class="trend" id="winRateTrend"></div>
+      <div class="stat-card">
+        <h3>Win Rate</h3>
+        <div class="value" id="winRate">0%</div>
       </div>
       
-      <div class="stat-card" tabindex="0" role="region" aria-labelledby="total-profit-title">
-        <h3 id="total-profit-title">Lucro Acumulado</h3>
-        <div class="value profit" id="totalProfit" aria-label="Lucro total acumulado">$0.00</div>
-        <div class="trend" id="totalProfitTrend"></div>
+      <div class="stat-card">
+        <h3>Lucro Acumulado</h3>
+        <div class="value profit" id="totalProfit">$0.00</div>
       </div>
       
-      <div class="stat-card" tabindex="0" role="region" aria-labelledby="total-roi-title">
-        <h3 id="total-roi-title">ROI (sobre banca)</h3>
-        <div class="value" id="totalROI" aria-label="Retorno sobre investimento">0%</div>
-        <div class="trend" id="totalROITrend"></div>
-      </div>
-    </div>
-
-    <!-- === SEÇÃO DE GRÁFICOS E ANÁLISES === -->
-    <div class="charts-section">
-      <h2>📊 Análise Gráfica</h2>
-      <div class="charts-grid">
-        <div class="chart-container">
-          <div class="chart-title">Evolução da Banca</div>
-          <canvas id="balanceChart" aria-label="Gráfico da evolução da banca ao longo do tempo"></canvas>
-        </div>
-        
-        <div class="chart-container">
-          <div class="chart-title">Distribuição de Resultados</div>
-          <canvas id="resultsChart" aria-label="Gráfico de pizza mostrando distribuição de lucros e perdas"></canvas>
-        </div>
+      <div class="stat-card">
+        <h3>ROI (sobre banca)</h3>
+        <div class="value" id="totalROI">0%</div>
       </div>
     </div>
 
@@ -966,76 +767,61 @@
       <div class="form-grid">
         <div class="form-group">
           <label for="tradeDate" class="required">Data do Trade</label>
-          <input type="date" id="tradeDate" required aria-describedby="tradeDate-help" />
+          <input type="date" id="tradeDate" required />
           <div class="error-message" id="tradeDate-error"></div>
-          <small id="tradeDate-help">Data em que o trade foi executado</small>
         </div>
         
         <div class="form-group">
           <label for="pair" class="required">Paridade</label>
-          <input type="text" id="pair" placeholder="ex: BTCUSDT" required 
-                 pattern="[A-Z]{2,10}USDT?" title="Digite uma paridade válida (ex: BTCUSDT)"
-                 aria-describedby="pair-help" />
+          <input type="text" id="pair" placeholder="ex: BTCUSDT" required />
           <div class="error-message" id="pair-error"></div>
-          <small id="pair-help">Par de moedas negociado (ex: BTCUSDT)</small>
         </div>
         
         <div class="form-group">
-          <label for="tradeValue">Valor do Trade (calculado automaticamente)</label>
-          <input type="number" id="tradeValue" step="0.01" readonly 
-                 aria-describedby="tradeValue-help" />
-          <small id="tradeValue-help">Valor calculado baseado na sequência de trades</small>
+          <label for="tradeValue">Valor do Trade (calculado)</label>
+          <input type="number" id="tradeValue" step="0.01" readonly />
         </div>
         
         <div class="form-group">
           <label for="position" class="required">Tipo de Posição</label>
-          <select id="position" required aria-describedby="position-help">
+          <select id="position" required>
             <option value="">Selecione...</option>
             <option value="long">LONG (Compra)</option>
             <option value="short">SHORT (Venda)</option>
           </select>
           <div class="error-message" id="position-error"></div>
-          <small id="position-help">Direção da sua operação</small>
         </div>
         
         <div class="form-group">
           <label for="resultType" class="required">Resultado</label>
-          <select id="resultType" required aria-describedby="resultType-help">
+          <select id="resultType" required>
             <option value="">Selecione...</option>
             <option value="profit">Lucro</option>
             <option value="loss">Prejuízo</option>
           </select>
           <div class="error-message" id="resultType-error"></div>
-          <small id="resultType-help">Se o trade foi positivo ou negativo</small>
         </div>
         
         <div class="form-group">
           <label for="percentage" class="required">Percentual (%)</label>
-          <input type="number" id="percentage" step="0.01" required min="0" max="100"
-                 aria-describedby="percentage-help" />
+          <input type="number" id="percentage" step="0.01" required min="0" max="100" />
           <div class="error-message" id="percentage-error"></div>
-          <small id="percentage-help">Percentual de lucro/prejuízo obtido</small>
         </div>
         
         <div class="form-group">
           <label for="observations">Observações</label>
-          <input type="text" id="observations" placeholder="Setup, estratégia, etc." 
-                 maxlength="200" aria-describedby="observations-help" />
-          <small id="observations-help">Anotações sobre o trade (opcional)</small>
+          <input type="text" id="observations" placeholder="Setup, estratégia, etc." maxlength="200" />
         </div>
       </div>
       
       <div>
-        <button class="btn btn-primary" id="addTradeBtn" aria-label="Adicionar novo trade">
+        <button class="btn btn-primary" id="addTradeBtn">
           <span>➕</span> Adicionar Trade
         </button>
-        <button class="btn btn-success" id="exportBtn" aria-label="Exportar dados para CSV">
+        <button class="btn btn-success" id="exportBtn">
           <span>📊</span> Exportar CSV
         </button>
-        <button class="btn btn-warning" id="importBtn" aria-label="Importar dados de CSV">
-          <span>📥</span> Importar CSV
-        </button>
-        <button class="btn btn-danger" id="resetBtn" aria-label="Resetar todos os dados">
+        <button class="btn btn-danger" id="resetBtn">
           <span>♻️</span> Resetar Tudo
         </button>
       </div>
@@ -1045,51 +831,25 @@
     <div class="table-container">
       <div class="table-header">
         <h2>📋 Histórico de Trades</h2>
-        <div class="table-controls">
-          <div class="search-box">
-            <input type="text" id="searchTrades" placeholder="Buscar trades..." 
-                   aria-label="Buscar trades por paridade ou observação" />
-          </div>
-          
-          <select class="filter-select" id="filterType" aria-label="Filtrar por tipo de resultado">
-            <option value="">Todos os resultados</option>
-            <option value="profit">Apenas Lucros</option>
-            <option value="loss">Apenas Prejuízos</option>
-          </select>
-          
-          <select class="filter-select" id="filterPosition" aria-label="Filtrar por tipo de posição">
-            <option value="">Todas as posições</option>
-            <option value="long">Apenas LONG</option>
-            <option value="short">Apenas SHORT</option>
-          </select>
-        </div>
       </div>
       
       <div class="table-wrapper">
-        <table id="tradesTable" role="table" aria-label="Tabela de trades realizados">
+        <table id="tradesTable">
           <thead>
-            <tr role="row">
-              <th role="columnheader" class="sortable" data-sort="trade_date" 
-                  aria-label="Ordenar por data" tabindex="0">Data</th>
-              <th role="columnheader" class="sortable" data-sort="pair" 
-                  aria-label="Ordenar por paridade" tabindex="0">Paridade</th>
-              <th role="columnheader" class="sortable" data-sort="value_trade" 
-                  aria-label="Ordenar por valor do trade" tabindex="0">Valor Trade</th>
-              <th role="columnheader" class="sortable" data-sort="position" 
-                  aria-label="Ordenar por tipo de posição" tabindex="0">Tipo</th>
-              <th role="columnheader" class="sortable" data-sort="type" 
-                  aria-label="Ordenar por resultado" tabindex="0">Resultado</th>
-              <th role="columnheader" class="sortable" data-sort="percent" 
-                  aria-label="Ordenar por percentual" tabindex="0">PNL (%)</th>
-              <th role="columnheader" class="sortable" data-sort="result" 
-                  aria-label="Ordenar por valor do resultado" tabindex="0">PNL ($)</th>
-              <th role="columnheader" class="sortable" data-sort="new_value" 
-                  aria-label="Ordenar por novo valor" tabindex="0">Novo Valor</th>
-              <th role="columnheader">Observações</th>
-              <th role="columnheader">Ações</th>
+            <tr>
+              <th>Data</th>
+              <th>Paridade</th>
+              <th>Valor Trade</th>
+              <th>Tipo</th>
+              <th>Resultado</th>
+              <th>PNL (%)</th>
+              <th>PNL ($)</th>
+              <th>Novo Valor</th>
+              <th>Observações</th>
+              <th>Ações</th>
             </tr>
           </thead>
-          <tbody id="tradesBody" role="rowgroup">
+          <tbody id="tradesBody">
             <!-- Trades serão inseridos aqui dinamicamente -->
           </tbody>
         </table>
@@ -1107,58 +867,28 @@
   </div>
 
   <!-- === MODAL DE AUTENTICAÇÃO === -->
-  <div class="auth-modal" id="authModal" role="dialog" aria-labelledby="authModalTitle" aria-hidden="true">
+  <div class="auth-modal" id="authModal">
     <div class="auth-card">
-      <div class="auth-tabs" role="tablist">
-        <div class="auth-tab active" id="tabSignup" role="tab" aria-controls="bodySignup" 
-             aria-selected="true" tabindex="0">CADASTRO</div>
-        <div class="auth-tab" id="tabLogin" role="tab" aria-controls="bodyLogin" 
-             aria-selected="false" tabindex="0">LOGIN</div>
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tabSignup">CADASTRO</div>
+        <div class="auth-tab" id="tabLogin">LOGIN</div>
       </div>
       
       <!-- Painel de Cadastro -->
-      <div class="auth-body" id="bodySignup" role="tabpanel" aria-labelledby="tabSignup">
-        <h3 id="authModalTitle">Criar Nova Conta</h3>
+      <div class="auth-body" id="bodySignup">
+        <h3>Criar Nova Conta</h3>
         <div class="auth-row">
-          <input type="email" id="signupEmail" placeholder="seu@email.com" required
-                 aria-label="Digite seu e-mail" autocomplete="email" />
+          <input type="email" id="signupEmail" placeholder="seu@email.com" required />
         </div>
         <div class="auth-row">
-          <input type="text" id="signupUsername" placeholder="nome_de_usuario" required
-                 aria-label="Escolha um nome de usuário" autocomplete="username" 
-                 pattern="[a-zA-Z0-9_]{3,20}" title="3-20 caracteres: letras, números e underscore" />
+          <input type="text" id="signupUsername" placeholder="nome_de_usuario" required />
         </div>
         <div class="auth-row">
-          <input type="password" id="signupPassword" placeholder="senha segura" required
-                 aria-label="Crie uma senha" autocomplete="new-password" 
-                 minlength="8" title="Mínimo 8 caracteres" />
+          <input type="password" id="signupPassword" placeholder="senha segura" required />
         </div>
         <div class="auth-actions">
-          <button class="btn btn-secondary" id="closeAuth1" aria-label="Fechar modal">Cancelar</button>
-          <button class="btn btn-primary" id="doSignup" aria-label="Criar conta">
-            <span>🚀</span> Cadastrar
-          </button>
-        </div>
-        <div class="auth-hint">
-          O <strong>nome de usuário</strong> será usado para fazer login.<br>
-          Use letras, números e underscore (3-20 caracteres).
-        </div>
-      </div>
-      
-      <!-- Painel de Login -->
-      <div class="auth-body" id="bodyLogin" style="display:none" role="tabpanel" aria-labelledby="tabLogin">
-        <h3>Entrar na Conta</h3>
-        <div class="auth-row">
-          <input type="text" id="loginUsername" placeholder="seu_nome_de_usuario" required
-                 aria-label="Digite seu nome de usuário" autocomplete="username" />
-        </div>
-        <div class="auth-row">
-          <input type="password" id="loginPassword" placeholder="sua senha" required
-                 aria-label="Digite sua senha" autocomplete="current-password" />
-        </div>
-        <div class="auth-actions">
-          <button class="btn btn-secondary" id="closeAuth2" aria-label="Fechar modal">Cancelar</button>
-          <button class="btn btn-primary" id="doLogin" aria-label="Fazer login">
+          <button class="btn btn-secondary" id="closeAuth1">Cancelar</button>
+          <button class="btn btn-primary" id="doLogin">
             <span>🔐</span> Entrar
           </button>
         </div>
@@ -1170,23 +900,1075 @@
     </div>
   </div>
 
-  <!-- === INPUT OCULTO PARA IMPORTAÇÃO DE ARQUIVO === -->
-  <input type="file" id="fileInput" accept=".csv" style="display: none;" 
-         aria-label="Selecionar arquivo CSV para importar" />
-
   <!-- === SCRIPTS === -->
-  <!-- Configuração do Supabase (CONFIGURE AQUI) -->
   <script>
     // ======= CONFIGURE AQUI AS CREDENCIAIS DO SUPABASE =======
-    const SUPABASE_URL = 'https://ayoltukjvrpcwumsauan.supabase.co'; // <-- Substitua pela sua URL
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5b2x0dWtqdnJwY3d1bXNhdWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDUwMTQsImV4cCI6MjA3MTYyMTAxNH0.pCQouhf6ZazBjSIArOmWPdF4HOmh1r_L4NLzrTm7bmE';               // <-- Substitua pela sua chave
+    const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co'; // <-- Substitua pela sua URL
+    const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';               // <-- Substitua pela sua chave
     // =========================================================
-  </script>
 
-  <!-- Script principal da aplicação -->
-  <script src="trading-tracker.js"></script>
-  
-  <!-- Script de utilitários e helpers -->
-  <script src="trading-utils.js"></script>
+    // === CLASSE PRINCIPAL DO TRADING TRACKER ===
+    class TradingTracker {
+      constructor() {
+        this.sb = null;
+        this.state = {
+          user: null,
+          trades: [],
+          initialBalance: 0,
+          initialTradeValue: 0,
+          percentTarget: 0,
+          currentTradeValue: 0,
+          profileUsername: '',
+          isLoading: false
+        };
+        
+        this.debounceTimers = {};
+        this.init();
+      }
+
+      // === INICIALIZAÇÃO ROBUSTA ===
+      async init() {
+        try {
+          console.log('🚀 Inicializando Trading Tracker...');
+          
+          // Verificar se as credenciais foram configuradas
+          if (SUPABASE_URL === 'https://YOUR-PROJECT.supabase.co' || SUPABASE_ANON_KEY === 'YOUR-ANON-KEY') {
+            this.showNotification('Configure as credenciais do Supabase no código!', 'error');
+            this.setConnectionStatus(false);
+            return;
+          }
+
+          // Inicializar Supabase
+          this.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          
+          // Configurar listeners
+          this.setupEventListeners();
+          this.setupAuthListeners();
+          
+          // Inicializar sessão
+          await this.initSession();
+          
+          // Configurar data padrão
+          this.setDefaultDate();
+          
+          console.log('✅ Trading Tracker inicializado com sucesso');
+          
+        } catch (error) {
+          console.error('❌ Erro na inicialização:', error);
+          this.showNotification('Erro na inicialização: ' + error.message, 'error');
+          this.setConnectionStatus(false);
+        }
+      }
+
+      // === CONFIGURAR EVENT LISTENERS ===
+      setupEventListeners() {
+        // Autenticação
+        document.getElementById('btnLogin').onclick = () => this.openAuthModal('login');
+        document.getElementById('btnLogout').onclick = () => this.logout();
+        document.getElementById('closeAuth1').onclick = () => this.closeAuthModal();
+        document.getElementById('closeAuth2').onclick = () => this.closeAuthModal();
+        document.getElementById('doSignup').onclick = () => this.signup();
+        document.getElementById('doLogin').onclick = () => this.login();
+
+        // Abas do modal
+        document.getElementById('tabSignup').onclick = () => this.switchAuthTab('signup');
+        document.getElementById('tabLogin').onclick = () => this.switchAuthTab('login');
+
+        // Configurações e trades
+        document.getElementById('saveSettings').onclick = () => this.saveSettings();
+        document.getElementById('addTradeBtn').onclick = () => this.addTrade();
+        document.getElementById('exportBtn').onclick = () => this.exportCSV();
+        document.getElementById('resetBtn').onclick = () => this.resetAll();
+
+        // Fechar modal ao clicar fora
+        document.getElementById('authModal').onclick = (e) => {
+          if (e.target === e.currentTarget) {
+            this.closeAuthModal();
+          }
+        };
+
+        // ESC para fechar modal
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            this.closeAuthModal();
+          }
+        });
+      }
+
+      // === CONFIGURAR LISTENERS DE AUTENTICAÇÃO ===
+      setupAuthListeners() {
+        this.sb.auth.onAuthStateChange(async (event, session) => {
+          console.log('🔐 Auth state changed:', event);
+          
+          try {
+            if (event === 'SIGNED_IN' && session?.user) {
+              this.state.user = session.user;
+              await this.loadEverything();
+              this.toggleAuth(true);
+              this.showNotification('Login realizado com sucesso!', 'success');
+            } else if (event === 'SIGNED_OUT') {
+              this.handleSignOut();
+            } else if (event === 'TOKEN_REFRESHED') {
+              console.log('🔄 Token atualizado');
+            }
+          } catch (error) {
+            console.error('Erro no listener de auth:', error);
+            this.showNotification('Erro na autenticação: ' + error.message, 'error');
+          }
+        });
+      }
+
+      // === INICIALIZAÇÃO DE SESSÃO CORRIGIDA ===
+      async initSession() {
+        this.setLoadingState(true);
+        
+        try {
+          const { data: { session }, error } = await this.sb.auth.getSession();
+          
+          if (error) {
+            console.error('Erro ao obter sessão:', error);
+            this.setConnectionStatus(false);
+            this.setWhoAmI('Deslogado');
+            return;
+          }
+
+          this.state.user = session?.user || null;
+          
+          if (this.state.user) {
+            await this.loadEverything();
+            this.toggleAuth(true);
+          } else {
+            this.toggleAuth(false);
+            this.setDefaultValues();
+          }
+          
+          this.setConnectionStatus(!!this.state.user);
+          
+        } catch (error) {
+          console.error('Erro na inicialização da sessão:', error);
+          this.showNotification('Erro na conexão com o servidor', 'error');
+          this.setConnectionStatus(false);
+          this.setWhoAmI('Erro na conexão');
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      // === CARREGAR TODOS OS DADOS COM TRATAMENTO DE ERRO ===
+      async loadEverything() {
+        if (!this.state.user) return;
+
+        this.setLoadingState(true);
+
+        try {
+          // Carregar perfil
+          const profile = await this.ensureProfile();
+          
+          this.state.initialBalance = Number(profile.bank_initial || 0);
+          this.state.initialTradeValue = Number(profile.initial_trade_value || 0);
+          this.state.percentTarget = Number(profile.percent_target || 0);
+          this.state.profileUsername = profile.username || '';
+
+          this.setWhoAmI(this.state.profileUsername || this.state.user?.email || 'Usuário');
+
+          // Atualizar campos
+          document.getElementById('bankInitial').value = this.state.initialBalance || '';
+          document.getElementById('initialTrade').value = this.state.initialTradeValue || '';
+          document.getElementById('percentTarget').value = this.state.percentTarget || '';
+
+          // Carregar trades com retry
+          await this.loadTradesWithRetry();
+
+          // Calcular valor atual
+          this.updateCurrentTradeValue();
+
+          // Definir valores padrão
+          document.getElementById('percentage').value = this.state.percentTarget || 12;
+          document.getElementById('tradeValue').value = (this.state.currentTradeValue || 0).toFixed(2);
+
+          // Renderizar
+          this.render();
+
+        } catch (error) {
+          console.error('Erro ao carregar dados:', error);
+          this.showNotification('Erro ao carregar dados: ' + error.message, 'error');
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      // === CARREGAR TRADES COM RETRY ===
+      async loadTradesWithRetry(maxRetries = 3) {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            const { data: trades, error } = await this.sb
+              .from('trades')
+              .select('*')
+              .eq('user_id', this.state.user.id)
+              .order('trade_date', { ascending: true });
+
+            if (error) {
+              throw error;
+            }
+
+            this.state.trades = trades || [];
+            console.log(`✅ Trades carregados: ${this.state.trades.length}`);
+            return;
+
+          } catch (error) {
+            console.error(`Tentativa ${attempt} de carregar trades falhou:`, error);
+            
+            if (attempt === maxRetries) {
+              this.state.trades = [];
+              this.showNotification('Não foi possível carregar os trades. Tente recarregar a página.', 'error');
+            } else {
+              // Aguardar antes da próxima tentativa
+              await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            }
+          }
+        }
+      }
+
+      // === GARANTIR PERFIL COM TRATAMENTO ROBUSTO ===
+      async ensureProfile() {
+        try {
+          const { data: profile, error } = await this.sb
+            .from('profiles')
+            .select('*')
+            .eq('id', this.state.user.id)
+            .single();
+
+          if (error && error.code === 'PGRST116') {
+            // Perfil não existe, criar um
+            const defaultProfile = {
+              id: this.state.user.id,
+              email: this.state.user.email || null,
+              username: null,
+              bank_initial: 59000,
+              initial_trade_value: 2360,
+              percent_target: 12
+            };
+
+            const { data: newProfile, error: createError } = await this.sb
+              .from('profiles')
+              .insert(defaultProfile)
+              .select()
+              .single();
+
+            if (createError) {
+              throw createError;
+            }
+
+            return newProfile;
+          }
+
+          if (error) {
+            throw error;
+          }
+
+          return profile;
+
+        } catch (error) {
+          console.error('Erro no perfil:', error);
+          
+          // Retornar perfil padrão em caso de erro
+          return {
+            id: this.state.user.id,
+            email: this.state.user.email || null,
+            username: null,
+            bank_initial: 59000,
+            initial_trade_value: 2360,
+            percent_target: 12
+          };
+        }
+      }
+
+      // === LOGOUT CORRIGIDO ===
+      async logout() {
+        if (!confirm('Deseja realmente sair da sua conta?')) {
+          return;
+        }
+
+        this.setLoadingState(true);
+
+        try {
+          const { error } = await this.sb.auth.signOut();
+          if (error) {
+            throw error;
+          }
+          
+          // O listener automático vai chamar handleSignOut()
+          
+        } catch (error) {
+          console.error('Erro no logout:', error);
+          this.showNotification('Erro ao fazer logout: ' + error.message, 'error');
+          
+          // Forçar logout local em caso de erro
+          this.handleSignOut();
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      // === TRATAR SIGN OUT ===
+      handleSignOut() {
+        this.state.user = null;
+        this.state.trades = [];
+        this.state.profileUsername = '';
+        
+        this.toggleAuth(false);
+        this.setDefaultValues();
+        this.render();
+        
+        this.showNotification('Logout realizado', 'info');
+      }
+
+      // === SISTEMA DE LOADING ===
+      setLoadingState(isLoading) {
+        this.state.isLoading = isLoading;
+        
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(btn => {
+          if (isLoading) {
+            btn.classList.add('loading');
+            btn.disabled = true;
+          } else {
+            btn.classList.remove('loading');
+            btn.disabled = false;
+          }
+        });
+      }
+
+      // === TOGGLE DE AUTENTICAÇÃO ===
+      toggleAuth(isLogged) {
+        const btnLogin = document.getElementById('btnLogin');
+        const btnLogout = document.getElementById('btnLogout');
+        
+        btnLogin.style.display = isLogged ? 'none' : 'inline-flex';
+        btnLogout.style.display = isLogged ? 'inline-flex' : 'none';
+        
+        this.setWhoAmI(isLogged ? (this.state.profileUsername || this.state.user?.email || 'Usuário') : 'Deslogado');
+        this.setConnectionStatus(isLogged);
+      }
+
+      // === DEFINIR STATUS DE USUÁRIO ===
+      setWhoAmI(name) {
+        document.getElementById('whoami').textContent = name || 'Deslogado';
+      }
+
+      // === DEFINIR STATUS DE CONEXÃO ===
+      setConnectionStatus(online) {
+        const dot = document.getElementById('statusDot');
+        const txt = document.getElementById('cloudStatus');
+        
+        if (online) {
+          dot.classList.add('online');
+          txt.textContent = 'Online';
+        } else {
+          dot.classList.remove('online');
+          txt.textContent = 'Offline';
+        }
+      }
+
+      // === MODAL DE AUTENTICAÇÃO ===
+      openAuthModal(tab = 'login') {
+        this.switchAuthTab(tab);
+        const modal = document.getElementById('authModal');
+        modal.style.display = 'flex';
+        modal.classList.add('show');
+        
+        setTimeout(() => {
+          const firstInput = modal.querySelector('input');
+          if (firstInput) firstInput.focus();
+        }, 100);
+      }
+
+      closeAuthModal() {
+        const modal = document.getElementById('authModal');
+        modal.classList.remove('show');
+        
+        setTimeout(() => {
+          modal.style.display = 'none';
+          this.clearAuthForms();
+        }, 200);
+      }
+
+      switchAuthTab(tab) {
+        const tabSignup = document.getElementById('tabSignup');
+        const tabLogin = document.getElementById('tabLogin');
+        const bodySignup = document.getElementById('bodySignup');
+        const bodyLogin = document.getElementById('bodyLogin');
+
+        if (tab === 'signup') {
+          tabSignup.classList.add('active');
+          tabLogin.classList.remove('active');
+          bodySignup.style.display = 'block';
+          bodyLogin.style.display = 'none';
+        } else {
+          tabLogin.classList.add('active');
+          tabSignup.classList.remove('active');
+          bodyLogin.style.display = 'block';
+          bodySignup.style.display = 'none';
+        }
+      }
+
+      clearAuthForms() {
+        ['signupEmail', 'signupUsername', 'signupPassword', 'loginUsername', 'loginPassword']
+          .forEach(id => {
+            const input = document.getElementById(id);
+            if (input) input.value = '';
+          });
+      }
+
+      // === CADASTRO ===
+      async signup() {
+        const email = document.getElementById('signupEmail').value.trim();
+        const username = document.getElementById('signupUsername').value.trim();
+        const password = document.getElementById('signupPassword').value.trim();
+
+        if (!email || !username || !password) {
+          this.showNotification('Preencha todos os campos', 'error');
+          return;
+        }
+
+        if (password.length < 6) {
+          this.showNotification('Senha deve ter pelo menos 6 caracteres', 'error');
+          return;
+        }
+
+        this.setLoadingState(true);
+
+        try {
+          const { data: signUpData, error: signUpError } = await this.sb.auth.signUp({
+            email,
+            password
+          });
+
+          if (signUpError) {
+            throw signUpError;
+          }
+
+          const authUserId = signUpData.user?.id;
+          if (!authUserId) {
+            this.showNotification('Cadastro criado. Confirme seu e-mail se necessário.', 'info');
+            return;
+          }
+
+          // Criar perfil
+          const { error: profileError } = await this.sb
+            .from('profiles')
+            .insert({
+              id: authUserId,
+              email: email,
+              username: username,
+              bank_initial: 59000,
+              initial_trade_value: 2360,
+              percent_target: 12
+            });
+
+          if (profileError && !profileError.message.includes('duplicate')) {
+            console.error('Erro no perfil:', profileError);
+          }
+
+          // Tentar login automático
+          const { error: loginError } = await this.sb.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (loginError) {
+            this.showNotification('Conta criada! Faça login agora.', 'success');
+            this.switchAuthTab('login');
+          } else {
+            this.closeAuthModal();
+            this.showNotification('Cadastro e login realizados!', 'success');
+          }
+
+        } catch (error) {
+          console.error('Erro no cadastro:', error);
+          this.showNotification(this.getErrorMessage(error), 'error');
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      // === LOGIN ===
+      async login() {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+
+        if (!username || !password) {
+          this.showNotification('Preencha usuário e senha', 'error');
+          return;
+        }
+
+        this.setLoadingState(true);
+
+        try {
+          // Buscar email pelo username
+          let email = null;
+          
+          try {
+            const { data: rpcData, error: rpcError } = await this.sb.rpc('get_email_by_username', {
+              p_username: username
+            });
+
+            if (rpcError) {
+              throw rpcError;
+            }
+            
+            email = rpcData;
+          } catch (rpcError) {
+            // Se a função RPC não existir, tentar login direto com username
+            if (username.includes('@')) {
+              email = username;
+            } else {
+              this.showNotification('Função de busca não configurada. Use e-mail para login.', 'error');
+              return;
+            }
+          }
+
+          if (!email) {
+            this.showNotification('Usuário não encontrado', 'error');
+            return;
+          }
+
+          // Fazer login
+          const { error: loginError } = await this.sb.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (loginError) {
+            throw loginError;
+          }
+
+          this.closeAuthModal();
+
+        } catch (error) {
+          console.error('Erro no login:', error);
+          this.showNotification(this.getErrorMessage(error), 'error');
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      // === SALVAR CONFIGURAÇÕES ===
+      async saveSettings() {
+        if (!this.state.user) {
+          this.showNotification('Faça login para salvar', 'error');
+          return;
+        }
+
+        const bank = Number(document.getElementById('bankInitial').value || 0);
+        const initValue = Number(document.getElementById('initialTrade').value || 0);
+        const percent = Number(document.getElementById('percentTarget').value || 0);
+
+        if (bank <= 0 || initValue <= 0 || percent <= 0) {
+          this.showNotification('Valores devem ser maiores que zero', 'error');
+          return;
+        }
+
+        this.setLoadingState(true);
+
+        try {
+          const { error } = await this.sb
+            .from('profiles')
+            .upsert({
+              id: this.state.user.id,
+              bank_initial: bank,
+              initial_trade_value: initValue,
+              percent_target: percent
+            });
+
+          if (error) {
+            throw error;
+          }
+
+          this.state.initialBalance = bank;
+          this.state.initialTradeValue = initValue;
+          this.state.percentTarget = percent;
+
+          if (this.state.trades.length === 0) {
+            this.state.currentTradeValue = this.state.initialTradeValue;
+            document.getElementById('tradeValue').value = this.state.currentTradeValue.toFixed(2);
+          }
+
+          this.render();
+          this.showNotification('Configurações salvas!', 'success');
+
+        } catch (error) {
+          console.error('Erro ao salvar:', error);
+          this.showNotification('Erro ao salvar: ' + error.message, 'error');
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      // === ADICIONAR TRADE ===
+      async addTrade() {
+        if (!this.state.user) {
+          this.showNotification('Faça login para adicionar trades', 'error');
+          return;
+        }
+
+        const date = document.getElementById('tradeDate').value;
+        const pair = document.getElementById('pair').value.trim().toUpperCase();
+        const value = Number(document.getElementById('tradeValue').value);
+        const position = document.getElementById('position').value;
+        const type = document.getElementById('resultType').value;
+        const percent = Number(document.getElementById('percentage').value);
+        const observations = document.getElementById('observations').value.trim();
+
+        if (!date || !pair || !position || !type || !percent) {
+          this.showNotification('Preencha todos os campos obrigatórios', 'error');
+          return;
+        }
+
+        if (percent <= 0) {
+          this.showNotification('Percentual deve ser maior que zero', 'error');
+          return;
+        }
+
+        this.setLoadingState(true);
+
+        try {
+          const resultAbs = +(value * (percent / 100)).toFixed(2);
+          const result = type === 'profit' ? resultAbs : -resultAbs;
+          const newValue = +(value + result).toFixed(2);
+
+          const payload = {
+            user_id: this.state.user.id,
+            trade_date: date,
+            pair: pair,
+            position: position,
+            value_trade: value,
+            type: type,
+            percent: percent,
+            result: result,
+            new_value: newValue,
+            observations: observations
+          };
+
+          const { data, error } = await this.sb
+            .from('trades')
+            .insert(payload)
+            .select()
+            .single();
+
+          if (error) {
+            throw error;
+          }
+
+          this.state.trades.push(data);
+          this.state.currentTradeValue = newValue;
+          document.getElementById('tradeValue').value = newValue.toFixed(2);
+
+          this.clearTradeForm();
+          this.render();
+          this.showNotification('Trade adicionado!', 'success');
+
+        } catch (error) {
+          console.error('Erro ao adicionar trade:', error);
+          this.showNotification('Erro ao adicionar trade: ' + error.message, 'error');
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      // === ATUALIZAR VALOR DO TRADE ATUAL ===
+      updateCurrentTradeValue() {
+        if (this.state.trades.length > 0) {
+          const lastTrade = this.state.trades[this.state.trades.length - 1];
+          this.state.currentTradeValue = Number(lastTrade.new_value);
+        } else {
+          this.state.currentTradeValue = this.state.initialTradeValue;
+        }
+      }
+
+      // === LIMPAR FORMULÁRIO ===
+      clearTradeForm() {
+        document.getElementById('pair').value = '';
+        document.getElementById('position').value = '';
+        document.getElementById('resultType').value = '';
+        document.getElementById('percentage').value = this.state.percentTarget || 12;
+        document.getElementById('observations').value = '';
+      }
+
+      // === REMOVER TRADE ===
+      async removeTrade(tradeId) {
+        if (!confirm('Remover este trade?')) return;
+
+        this.setLoadingState(true);
+
+        try {
+          const { error } = await this.sb
+            .from('trades')
+            .delete()
+            .eq('id', tradeId)
+            .eq('user_id', this.state.user.id);
+
+          if (error) {
+            throw error;
+          }
+
+          this.state.trades = this.state.trades.filter(t => t.id !== tradeId);
+          this.updateCurrentTradeValue();
+          document.getElementById('tradeValue').value = (this.state.currentTradeValue || 0).toFixed(2);
+          this.render();
+          this.showNotification('Trade removido', 'success');
+
+        } catch (error) {
+          console.error('Erro ao remover:', error);
+          this.showNotification('Erro ao remover trade', 'error');
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      // === EXPORTAR CSV ===
+      exportCSV() {
+        if (this.state.trades.length === 0) {
+          this.showNotification('Nenhum trade para exportar', 'warning');
+          return;
+        }
+
+        try {
+          const headers = ['Data', 'Paridade', 'Valor Trade', 'Tipo', 'Resultado', 'PNL (%)', 'PNL ($)', 'Novo Valor', 'Observações'];
+          const rows = this.state.trades.map(trade => {
+            const signedPct = (trade.type === 'loss' ? -Number(trade.percent || 0) : Number(trade.percent || 0));
+            return [
+              trade.trade_date,
+              trade.pair || '',
+              trade.value_trade,
+              (trade.position || '').toUpperCase(),
+              trade.type === 'profit' ? 'Lucro' : 'Prejuízo',
+              `${signedPct}%`,
+              trade.result,
+              trade.new_value,
+              `"${(trade.observations || '').replace(/"/g, '""')}"`
+            ];
+          });
+
+          const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `trades_${new Date().toISOString().slice(0, 10)}.csv`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+
+          this.showNotification('Dados exportados!', 'success');
+
+        } catch (error) {
+          console.error('Erro na exportação:', error);
+          this.showNotification('Erro ao exportar dados', 'error');
+        }
+      }
+
+      // === RESETAR DADOS ===
+      async resetAll() {
+        if (!this.state.user) {
+          this.showNotification('Faça login para resetar', 'error');
+          return;
+        }
+
+        if (!confirm('ATENÇÃO: Isso apagará TODOS os seus trades permanentemente!\n\nDeseja continuar?')) {
+          return;
+        }
+
+        this.setLoadingState(true);
+
+        try {
+          const { error } = await this.sb
+            .from('trades')
+            .delete()
+            .eq('user_id', this.state.user.id);
+
+          if (error) {
+            throw error;
+          }
+
+          this.state.trades = [];
+          this.state.currentTradeValue = this.state.initialTradeValue;
+          
+          document.getElementById('tradeValue').value = this.state.currentTradeValue.toFixed(2);
+          this.render();
+
+          this.showNotification('Todos os dados foram apagados', 'success');
+
+        } catch (error) {
+          console.error('Erro ao resetar:', error);
+          this.showNotification('Erro ao resetar dados', 'error');
+        } finally {
+          this.setLoadingState(false);
+        }
+      }
+
+      // === RENDERIZAÇÃO ===
+      render() {
+        const stats = this.calculateStats();
+
+        document.getElementById('totalTrades').textContent = stats.totalTrades;
+        document.getElementById('winRate').textContent = this.formatPercent(stats.winRate);
+        document.getElementById('totalProfit').textContent = this.formatMoney(stats.totalProfit);
+        document.getElementById('totalROI').textContent = this.formatPercent(stats.totalROI);
+        document.getElementById('nextTradeValue').textContent = this.formatMoney(stats.nextTradeValue);
+        document.getElementById('totalBalance').textContent = this.formatMoney(stats.totalBalance);
+
+        this.renderTable();
+      }
+
+      renderTable() {
+        const tbody = document.getElementById('tradesBody');
+        const emptyState = document.getElementById('emptyState');
+
+        if (this.state.trades.length === 0) {
+          tbody.innerHTML = '';
+          emptyState.style.display = 'block';
+          return;
+        }
+
+        emptyState.style.display = 'none';
+        tbody.innerHTML = '';
+
+        this.state.trades.forEach(trade => {
+          const tr = document.createElement('tr');
+          const signedPct = trade.type === 'loss' ? -Number(trade.percent || 0) : Number(trade.percent || 0);
+          const resultClass = trade.type === 'profit' ? 'profit' : 'loss';
+
+          tr.innerHTML = `
+            <td>${this.formatDate(trade.trade_date)}</td>
+            <td><strong>${trade.pair || ''}</strong></td>
+            <td>${this.formatMoney(trade.value_trade)}</td>
+            <td>${(trade.position || '').toUpperCase()}</td>
+            <td><span class="${resultClass}">${trade.type === 'profit' ? 'Lucro' : 'Prejuízo'}</span></td>
+            <td><strong>${signedPct.toFixed(2)}%</strong></td>
+            <td class="${resultClass}"><strong>${this.formatMoney(trade.result)}</strong></td>
+            <td>${this.formatMoney(trade.new_value)}</td>
+            <td>${trade.observations || ''}</td>
+            <td>
+              <button class="btn btn-danger" onclick="app.removeTrade(${trade.id})" title="Remover trade">
+                🗑️
+              </button>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      // === CÁLCULOS E ESTATÍSTICAS ===
+      calculateStats() {
+        const total = this.state.trades.length;
+        if (total === 0) {
+          return {
+            totalTrades: 0,
+            winRate: 0,
+            totalProfit: 0,
+            totalROI: 0,
+            totalBalance: this.state.initialBalance,
+      calculateStats() {
+        const total = this.state.trades.length;
+        if (total === 0) {
+          return {
+            totalTrades: 0,
+            winRate: 0,
+            totalProfit: 0,
+            totalROI: 0,
+            totalBalance: this.state.initialBalance,
+            nextTradeValue: this.state.initialTradeValue
+          };
+        }
+
+        const wins = this.state.trades.filter(t => t.type === 'profit').length;
+        const winRate = (wins / total) * 100;
+        const totalProfit = this.state.trades.reduce((sum, t) => sum + (t.result || 0), 0);
+        const totalROI = this.state.initialBalance > 0 ? (totalProfit / this.state.initialBalance) * 100 : 0;
+        const totalBalance = this.state.initialBalance - this.state.initialTradeValue + this.state.currentTradeValue + totalProfit;
+
+        return {
+          totalTrades: total,
+          winRate: winRate,
+          totalProfit: totalProfit,
+          totalROI: totalROI,
+          totalBalance: totalBalance,
+          nextTradeValue: this.state.currentTradeValue
+        };
+      }
+
+      // === UTILITÁRIOS DE FORMATAÇÃO ===
+      formatMoney(value) {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(value || 0);
+      }
+
+      formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString('pt-BR');
+      }
+
+      formatPercent(value, decimals = 1) {
+        return `${Number(value || 0).toFixed(decimals)}%`;
+      }
+
+      // === SISTEMA DE NOTIFICAÇÕES ===
+      showNotification(message, type = 'success', duration = 4000) {
+        // Remover notificações anteriores do mesmo tipo
+        document.querySelectorAll(`.notification.${type}`).forEach(n => n.remove());
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.1em;">${this.getNotificationIcon(type)}</span>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" 
+                    style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2em; margin-left: auto;">
+              ✕
+            </button>
+          </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animar entrada
+        setTimeout(() => notification.classList.add('show'), 50);
+
+        // Auto remover
+        setTimeout(() => {
+          notification.classList.remove('show');
+          setTimeout(() => notification.remove(), 300);
+        }, duration);
+      }
+
+      getNotificationIcon(type) {
+        const icons = {
+          success: '✅',
+          error: '❌', 
+          warning: '⚠️',
+          info: 'ℹ️'
+        };
+        return icons[type] || 'ℹ️';
+      }
+
+      // === TRATAMENTO DE ERROS ===
+      getErrorMessage(error) {
+        const errorMessages = {
+          'Invalid login credentials': 'Credenciais inválidas. Verifique usuário e senha.',
+          'Email not confirmed': 'Confirme seu e-mail antes de fazer login.',
+          'Too many requests': 'Muitas tentativas. Tente novamente em alguns minutos.',
+          'User already registered': 'E-mail já cadastrado. Faça login ou use outro e-mail.',
+          'Password should be at least 6 characters': 'Senha deve ter pelo menos 6 caracteres.',
+          'Unable to validate email address': 'E-mail inválido.',
+          'signup_disabled': 'Cadastro de novos usuários desabilitado.',
+        };
+
+        return errorMessages[error.message] || error.message || 'Erro desconhecido';
+      }
+
+      // === CONFIGURAÇÕES PADRÃO ===
+      setDefaultDate() {
+        const today = new Date().toISOString().slice(0, 10);
+        document.getElementById('tradeDate').value = today;
+      }
+
+      setDefaultValues() {
+        this.setDefaultDate();
+        document.getElementById('percentage').value = 12;
+        document.getElementById('tradeValue').value = '0.00';
+      }
+    }
+
+    // === INICIALIZAÇÃO GLOBAL ===
+    let app;
+
+    // Aguardar DOM carregar
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🚀 Inicializando Trading Tracker...');
+      app = new TradingTracker();
+    });
+
+    // Expor função para HTML
+    window.removeTrade = (tradeId) => {
+      if (app) {
+        app.removeTrade(tradeId);
+      }
+    };
+
+    // === TRATAMENTO DE ERROS GLOBAIS ===
+    window.addEventListener('error', (event) => {
+      console.error('Erro global capturado:', event.error);
+      if (app) {
+        app.showNotification('Erro inesperado na aplicação', 'error');
+      }
+    });
+
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Promise rejeitada:', event.reason);
+      if (app) {
+        app.showNotification('Erro de conexão. Verifique sua internet.', 'error');
+      }
+    });
+
+    // === DETECTAR PERDA DE CONECTIVIDADE ===
+    window.addEventListener('online', () => {
+      if (app) {
+        app.showNotification('Conexão restabelecida', 'success');
+        // Tentar recarregar dados se o usuário estiver logado
+        if (app.state.user) {
+          app.loadEverything();
+        }
+      }
+    });
+
+    window.addEventListener('offline', () => {
+      if (app) {
+        app.showNotification('Sem conexão com a internet', 'warning');
+        app.setConnectionStatus(false);
+      }
+    });
+
+    // === DETECTAR MUDANÇA DE VISIBILIDADE (RETORNO À PÁGINA) ===
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && app && app.state.user) {
+        console.log('🔄 Página voltou ao foco, verificando sessão...');
+        // Aguardar um pouco antes de tentar recarregar
+        setTimeout(() => {
+          app.initSession();
+        }, 500);
+      }
+    });
+
+    console.log('✅ Sistema de Trading Tracker carregado e pronto!');
+  </script>
 </body>
-</html>
+</html>doSignup">
+            <span>🚀</span> Cadastrar
+          </button>
+        </div>
+        <div class="auth-hint">
+          O <strong>nome de usuário</strong> será usado para fazer login.<br>
+          Use letras, números e underscore (3-20 caracteres).
+        </div>
+      </div>
+      
+      <!-- Painel de Login -->
+      <div class="auth-body" id="bodyLogin" style="display:none">
+        <h3>Entrar na Conta</h3>
+        <div class="auth-row">
+          <input type="text" id="loginUsername" placeholder="seu_nome_de_usuario" required />
+        </div>
+        <div class="auth-row">
+          <input type="password" id="loginPassword" placeholder="sua senha" required />
+        </div>
+        <div class="auth-actions">
+          <button class="btn btn-secondary" id="closeAuth2">Cancelar</button>
+          <button class="btn btn-primary" id="
