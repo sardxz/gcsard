@@ -46,12 +46,27 @@
     .auth-bar small{opacity:.9}
     .settings{padding:16px;background:#f1f5f9;border-top:1px solid #e5e7eb;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
     .settings .form-group input{background:#fff}
+
+    /* Modal de autenticação com abas */
     .auth-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000}
-    .auth-card{background:#fff;padding:22px;border-radius:12px;min-width:320px;max-width:480px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
-    .auth-card h3{margin-bottom:12px}
-    .auth-card input{width:100%;margin:6px 0 10px;padding:10px;border:2px solid #e5e7eb;border-radius:8px}
-    .auth-card .row{display:flex;gap:8px}
-    @media (max-width:768px){.container{margin:10px;border-radius:10px}.header{padding:20px}.header h1{font-size:1.8em}.stats-grid,.controls,.table-container{padding:20px}.auth-bar{position:relative;left:0;top:0;margin-bottom:8px}}
+    .auth-card{background:#fff;padding:0;border-radius:12px;min-width:360px;max-width:480px;box-shadow:0 10px 30px rgba(0,0,0,.15);overflow:hidden}
+    .auth-tabs{display:flex;background:#f1f5f9}
+    .auth-tab{flex:1;text-align:center;padding:12px 0;font-weight:700;cursor:pointer;border-bottom:3px solid transparent}
+    .auth-tab.active{background:#fff;border-bottom-color:#10b981}
+    .auth-body{padding:20px}
+    .auth-row{display:flex;gap:8px;margin-bottom:10px}
+    .auth-body input{width:100%;padding:10px;border:2px solid #e5e7eb;border-radius:8px}
+    .auth-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+    .auth-hint{font-size:12px;color:#475569;margin-top:8px}
+
+    @media (max-width:768px){
+      .container{margin:10px;border-radius:10px}
+      .header{padding:20px}
+      .header h1{font-size:1.8em}
+      .stats-grid,.controls,.table-container{padding:20px}
+      .auth-bar{position:relative;left:0;top:0;margin-bottom:8px}
+      .auth-card{min-width:320px}
+    }
   </style>
 </head>
 <body>
@@ -162,20 +177,42 @@
     </div>
   </div>
 
-  <!-- Auth modal -->
+  <!-- Auth modal (com abas CADASTRO / LOGIN) -->
   <div class="auth-modal" id="authModal">
     <div class="auth-card">
-      <h3>Entrar ou Registrar</h3>
-      <div class="row">
-        <input type="email" id="authEmail" placeholder="email"/>
-        <input type="password" id="authPassword" placeholder="senha"/>
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tabSignup">CADASTRO</div>
+        <div class="auth-tab" id="tabLogin">LOGIN</div>
       </div>
-      <div class="row">
-        <button class="btn btn-primary" id="doLogin">Entrar</button>
-        <button class="btn btn-secondary" id="doSignup">Registrar</button>
-        <button class="btn btn-danger" id="closeAuth">Fechar</button>
+      <div class="auth-body" id="bodySignup">
+        <div class="auth-row">
+          <input type="email" id="signupEmail" placeholder="e-mail" />
+        </div>
+        <div class="auth-row">
+          <input type="text" id="signupUsername" placeholder="nome de usuário" />
+        </div>
+        <div class="auth-row">
+          <input type="password" id="signupPassword" placeholder="senha" />
+        </div>
+        <div class="auth-actions">
+          <button class="btn btn-secondary" id="closeAuth1">Fechar</button>
+          <button class="btn btn-primary" id="doSignup">Cadastrar</button>
+        </div>
+        <div class="auth-hint">Dica: o <b>nome de usuário</b> será usado para fazer login.</div>
       </div>
-      <small>Dica: use um email real para recuperar senha. Dados ficam isolados por usuário.</small>
+      <div class="auth-body" id="bodyLogin" style="display:none">
+        <div class="auth-row">
+          <input type="text" id="loginUsername" placeholder="nome de usuário" />
+        </div>
+        <div class="auth-row">
+          <input type="password" id="loginPassword" placeholder="senha" />
+        </div>
+        <div class="auth-actions">
+          <button class="btn btn-secondary" id="closeAuth2">Fechar</button>
+          <button class="btn btn-primary" id="doLogin">Entrar</button>
+        </div>
+        <div class="auth-hint">Entrar com <b>nome de usuário</b> + senha (sem e-mail).</div>
+      </div>
     </div>
   </div>
 
@@ -194,6 +231,7 @@
     let initialTradeValue = 0;
     let percentTarget = 0;
     let currentTradeValue = 0;
+    let profileUsername = '';
 
     // UI helpers
     function notify(msg, type='success'){
@@ -205,57 +243,141 @@
       const dot = document.getElementById('statusDot'); const txt = document.getElementById('cloudStatus');
       if(online){ dot.style.background='#10b981'; txt.textContent='Online'; } else { dot.style.background='#ef4444'; txt.textContent='Offline'; }
     }
+    function setWhoAmI(name){
+      document.getElementById('whoami').textContent = name || 'Deslogado';
+    }
     const fmtMoney = v => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2}).format(v);
     const fmtDate = s => new Date(s).toLocaleDateString('pt-BR');
 
-    // Auth modal
+    // Abas do modal
     const authModal = document.getElementById('authModal');
-    document.getElementById('btnLogin').onclick = ()=> authModal.style.display='flex';
-    document.getElementById('closeAuth').onclick = ()=> authModal.style.display='none';
-    document.getElementById('doSignup').onclick = async()=>{
-      const email = document.getElementById('authEmail').value.trim();
-      const pass = document.getElementById('authPassword').value.trim();
-      const { error } = await sb.auth.signUp({ email, password: pass });
-      if(error){ notify(error.message,'error'); return; }
-      notify('Conta criada! Faça login.', 'success');
+    const tabSignup = document.getElementById('tabSignup');
+    const tabLogin  = document.getElementById('tabLogin');
+    const bodySignup= document.getElementById('bodySignup');
+    const bodyLogin = document.getElementById('bodyLogin');
+    function switchTab(which){
+      if(which==='signup'){
+        tabSignup.classList.add('active'); tabLogin.classList.remove('active');
+        bodySignup.style.display='block'; bodyLogin.style.display='none';
+      }else{
+        tabLogin.classList.add('active'); tabSignup.classList.remove('active');
+        bodyLogin.style.display='block'; bodySignup.style.display='none';
+      }
+    }
+    tabSignup.onclick = ()=> switchTab('signup');
+    tabLogin.onclick  = ()=> switchTab('login');
+
+    // Abrir/fechar modal
+    document.getElementById('btnLogin').onclick = ()=> { switchTab('login'); authModal.style.display='flex'; };
+    document.getElementById('closeAuth1').onclick = ()=> authModal.style.display='none';
+    document.getElementById('closeAuth2').onclick = ()=> authModal.style.display='none';
+
+    // Cadastro (email + username + senha)
+    document.getElementById('doSignup').onclick = async ()=>{
+      const email = document.getElementById('signupEmail').value.trim();
+      const username = document.getElementById('signupUsername').value.trim();
+      const password = document.getElementById('signupPassword').value.trim();
+      if(!email || !username || !password){ notify('Preencha e-mail, usuário e senha.','error'); return; }
+
+      // 1) cria usuário no auth
+      const { data: sData, error: sErr } = await sb.auth.signUp({ email, password });
+      if(sErr){ notify(sErr.message,'error'); return; }
+
+      // 2) cria/atualiza perfil (idempotente)
+      const authUserId = sData.user?.id;
+      if(!authUserId){
+        notify('Cadastro criado, confirme seu e-mail (se exigido) e depois faça login.','info');
+        return;
+      }
+      const defaults = { id: authUserId, email: email, username: username, bank_initial: 59000, initial_trade_value: 2360, percent_target: 12 };
+      const { error: pErr } = await sb.from('profiles').upsert(defaults);
+      if(pErr){
+        // rollback amigável: se username duplicado (índice unique), avisa
+        if(pErr.message?.toLowerCase().includes('duplicate') || pErr.message?.toLowerCase().includes('unique')){
+          notify('Nome de usuário já está em uso. Escolha outro.','error');
+        }else{
+          notify('Erro ao salvar perfil: '+pErr.message,'error');
+        }
+        return;
+      }
+
+      // 3) tentar logar direto (se o projeto não exigir confirmação de e-mail)
+      const { error: lErr } = await sb.auth.signInWithPassword({ email, password });
+      if(lErr){
+        notify('Conta criada. Faça login (ou confirme seu e-mail, se exigido).','success');
+      }else{
+        authModal.style.display='none';
+        await initSession();
+        notify('Cadastro concluído e login efetuado!','success');
+      }
     };
-    document.getElementById('doLogin').onclick = async()=>{
-      const email = document.getElementById('authEmail').value.trim();
-      const pass = document.getElementById('authPassword').value.trim();
-      const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-      if(error){ notify(error.message,'error'); return; }
+
+    // Login (username + senha)
+    document.getElementById('doLogin').onclick = async ()=>{
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      if(!username || !password){ notify('Informe usuário e senha.','error'); return; }
+
+      // buscar email a partir do username (RPC criada no banco)
+      let email = null;
+      try{
+        const { data: rpcData, error: rpcErr } = await sb.rpc('get_email_by_username', { p_username: username });
+        if(rpcErr){ throw rpcErr; }
+        email = rpcData;
+      }catch(e){
+        notify('Falha ao consultar usuário. Verifique se a função get_email_by_username existe.','error');
+        return;
+      }
+      if(!email){ notify('Usuário não encontrado.','error'); return; }
+
+      const { error: errLogin } = await sb.auth.signInWithPassword({ email, password });
+      if(errLogin){ notify(errLogin.message,'error'); return; }
+
       authModal.style.display='none';
       await initSession();
+      notify('Login realizado!','success');
     };
-    document.getElementById('btnLogout').onclick = async()=>{ await sb.auth.signOut(); user=null; trades=[]; render(); toggleAuth(false); };
+
+    // Logout
+    document.getElementById('btnLogout').onclick = async()=>{
+      await sb.auth.signOut();
+      user=null; trades=[]; profileUsername='';
+      render();
+      toggleAuth(false);
+    };
 
     function toggleAuth(isLogged){
       document.getElementById('btnLogin').style.display = isLogged? 'none':'inline-block';
       document.getElementById('btnLogout').style.display = isLogged? 'inline-block':'none';
-      document.getElementById('whoami').textContent = isLogged? (user.email||''): 'Deslogado';
+      setWhoAmI(isLogged ? (profileUsername || '') : '');
       setStatus(isLogged);
     }
 
     // DB helpers
     async function ensureProfile(){
       const { data: prof, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
+      // PGRST116 = no rows
       if(error && error.code !== 'PGRST116'){ notify(error.message,'error'); return; }
       if(!prof){
-        const defaults = { id: user.id, bank_initial: 59000, initial_trade_value: 2360, percent_target: 12 };
-        const { error: e2 } = await sb.from('profiles').insert(defaults);
-        if(e2){ notify(e2.message,'error'); return; }
-        return defaults;
+        const fallback = { id: user.id, email: user.email||null, username: null, bank_initial: 59000, initial_trade_value: 2360, percent_target: 12 };
+        const { error: e2 } = await sb.from('profiles').upsert(fallback);
+        if(e2){ notify(e2.message,'error'); return fallback; }
+        return fallback;
       }
       return prof;
     }
+
     async function loadEverything(){
       const prof = await ensureProfile();
-      initialBalance = Number(prof.bank_initial||0);
-      initialTradeValue = Number(prof.initial_trade_value||0);
-      percentTarget = Number(prof.percent_target||0);
+      initialBalance     = Number(prof.bank_initial||0);
+      initialTradeValue  = Number(prof.initial_trade_value||0);
+      percentTarget      = Number(prof.percent_target||0);
+      profileUsername    = prof.username || '';
 
-      document.getElementById('bankInitial').value = initialBalance||'';
-      document.getElementById('initialTrade').value = initialTradeValue||'';
+      setWhoAmI(profileUsername || (user?.email || ''));
+
+      document.getElementById('bankInitial').value   = initialBalance||'';
+      document.getElementById('initialTrade').value  = initialTradeValue||'';
       document.getElementById('percentTarget').value = percentTarget||'';
 
       const { data: rows, error } = await sb.from('trades').select('*').eq('user_id', user.id).order('trade_date',{ascending:true});
@@ -267,41 +389,44 @@
       document.getElementById('tradeValue').value = (currentTradeValue||0).toFixed(2);
       render();
     }
+
     async function saveSettings(){
-      const bank = Number(document.getElementById('bankInitial').value||0);
-      const initVal = Number(document.getElementById('initialTrade').value||0);
-      const pct = Number(document.getElementById('percentTarget').value||0);
-      const { error } = await sb.from('profiles').upsert({ id: user.id, bank_initial: bank, initial_trade_value: initVal, percent_target: pct });
+      const bank  = Number(document.getElementById('bankInitial').value||0);
+      const initV = Number(document.getElementById('initialTrade').value||0);
+      const pct   = Number(document.getElementById('percentTarget').value||0);
+      const { error } = await sb.from('profiles').upsert({ id: user.id, bank_initial: bank, initial_trade_value: initV, percent_target: pct });
       if(error){ notify(error.message,'error'); return; }
-      initialBalance=bank; initialTradeValue=initVal; percentTarget=pct;
+      initialBalance=bank; initialTradeValue=initV; percentTarget=pct;
       if(trades.length===0){ currentTradeValue = initialTradeValue; document.getElementById('tradeValue').value = currentTradeValue.toFixed(2); }
       notify('Configurações salvas!', 'success'); render();
     }
+
     async function addTrade(){
-      const date = document.getElementById('tradeDate').value;
-      const pair = document.getElementById('pair').value.trim();
-      const value = Number(document.getElementById('tradeValue').value);
+      const date     = document.getElementById('tradeDate').value;
+      const pair     = document.getElementById('pair').value.trim();
+      const value    = Number(document.getElementById('tradeValue').value);
       const position = document.getElementById('position').value; // 'long' | 'short'
-      const type = document.getElementById('resultType').value;  // 'profit' | 'loss'
-      const pct  = Number(document.getElementById('percentage').value);
-      const obs  = document.getElementById('observations').value||'';
+      const type     = document.getElementById('resultType').value;  // 'profit' | 'loss'
+      const pct      = Number(document.getElementById('percentage').value);
+      const obs      = document.getElementById('observations').value||'';
       if(!user){ notify('Faça login primeiro.','error'); return; }
       if(!date || !pair || !value || !pct){ notify('Preencha data, paridade, valor e %','error'); return; }
 
-      const resAbs = +(value * (pct/100)).toFixed(2);
-      const result = type==='profit' ? resAbs : -resAbs;
-      const newValue = +(value + result).toFixed(2);
+      const resAbs  = +(value * (pct/100)).toFixed(2);
+      const result  = type==='profit' ? resAbs : -resAbs;
+      const newVal  = +(value + result).toFixed(2);
 
-      const payload = { user_id:user.id, trade_date: date, pair, position, value_trade: value, type, percent: pct, result, new_value:newValue, observations: obs };
+      const payload = { user_id:user.id, trade_date: date, pair, position, value_trade: value, type, percent: pct, result, new_value:newVal, observations: obs };
       const { data, error } = await sb.from('trades').insert(payload).select().single();
       if(error){ notify(error.message,'error'); return; }
 
       trades.push(data);
-      currentTradeValue = newValue;
-      document.getElementById('tradeValue').value = newValue.toFixed(2);
+      currentTradeValue = newVal;
+      document.getElementById('tradeValue').value = newVal.toFixed(2);
       document.getElementById('observations').value='';
-      notify('Trade adicionado!', 'success'); render();
+      notify('Trade adicionado!','success'); render();
     }
+
     async function removeTrade(id){
       const { error } = await sb.from('trades').delete().eq('id', id).eq('user_id', user.id);
       if(error){ notify(error.message,'error'); return; }
@@ -310,43 +435,53 @@
       document.getElementById('tradeValue').value = (currentTradeValue||0).toFixed(2);
       render();
     }
+
     function exportCSV(){
       const headers = ['Data','Paridade','Valor Trade','Tipo','Resultado','PNL (%)','PNL ($)','Novo Valor','Observações'];
       const rows = trades.map(t=>{
         const signedPct = (t.type==='loss' ? -Number(t.percent||0) : Number(t.percent||0));
-        return [t.trade_date,t.pair||'',t.value_trade,t.position?.toUpperCase()||'',t.type,(signedPct)+'%',t.result,t.new_value, `"${(t.observations||'').replace(/"/g,'""')}"`];
+        return [
+          t.trade_date,
+          t.pair||'',
+          t.value_trade,
+          t.position?.toUpperCase()||'',
+          t.type,
+          (signedPct)+'%',
+          t.result,
+          t.new_value,
+          `"${(t.observations||'').replace(/"/g,'""')}"`
+        ];
       });
       const csv = [headers.join(','), ...rows.map(r=>r.join(','))].join('\n');
       const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href=url; a.download = `trades_${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url);
     }
+
     async function resetAll(){
       if(!confirm('Apagar TODOS os trades?')) return;
       const { error } = await sb.from('trades').delete().eq('user_id', user.id);
       if(error){ notify(error.message,'error'); return; }
       trades = []; currentTradeValue = initialTradeValue; document.getElementById('tradeValue').value = currentTradeValue.toFixed(2);
-      render(); notify('Tudo limpo.', 'success');
+      render(); notify('Tudo limpo.','success');
     }
 
     // Render
     function render(){
-      // Stats
-      const total = trades.length;
-      const wins = trades.filter(t=>t.type==='profit').length;
+      const total   = trades.length;
+      const wins    = trades.filter(t=>t.type==='profit').length;
       const winRate = total? (wins/total*100).toFixed(1): '0.0';
-      const lucro = trades.reduce((s,t)=> s + (t.result), 0); // result já vem com sinal
-      const roi = initialBalance? ((lucro/initialBalance)*100).toFixed(2): '0.00';
+      const lucro   = trades.reduce((s,t)=> s + (t.result), 0); // result com sinal
+      const roi     = initialBalance? ((lucro/initialBalance)*100).toFixed(2): '0.00';
       const bancaTotal = (initialBalance - initialTradeValue + (currentTradeValue||initialTradeValue) + lucro);
 
-      document.getElementById('totalTrades').textContent = total;
-      document.getElementById('winRate').textContent = `${winRate}%`;
-      document.getElementById('totalProfit').textContent = fmtMoney(lucro);
-      document.getElementById('totalROI').textContent = `${roi}%`;
-      document.getElementById('nextTradeValue').textContent = fmtMoney(currentTradeValue||0);
-      document.getElementById('totalBalance').textContent = fmtMoney(bancaTotal||0);
+      document.getElementById('totalTrades').textContent   = total;
+      document.getElementById('winRate').textContent       = `${winRate}%`;
+      document.getElementById('totalProfit').textContent   = fmtMoney(lucro);
+      document.getElementById('totalROI').textContent      = `${roi}%`;
+      document.getElementById('nextTradeValue').textContent= fmtMoney(currentTradeValue||0);
+      document.getElementById('totalBalance').textContent  = fmtMoney(bancaTotal||0);
 
-      // Table
       const tbody = document.getElementById('tradesBody'); tbody.innerHTML='';
       trades.forEach(t=>{
         const tr = document.createElement('tr');
@@ -371,20 +506,19 @@
     async function initSession(){
       const { data:{ session } } = await sb.auth.getSession();
       user = session?.user || null;
-      toggleAuth(!!user);
-      if(user){ await loadEverything(); }
+      if(user){ await loadEverything(); toggleAuth(true); }
       else{
+        toggleAuth(false);
         document.getElementById('tradeDate').value = new Date().toISOString().slice(0,10);
         document.getElementById('percentage').value = 12;
-        setStatus(false);
       }
     }
 
     // Wire buttons
     document.getElementById('saveSettings').onclick = saveSettings;
-    document.getElementById('addTradeBtn').onclick = addTrade;
-    document.getElementById('exportBtn').onclick = exportCSV;
-    document.getElementById('resetBtn').onclick = resetAll;
+    document.getElementById('addTradeBtn').onclick  = addTrade;
+    document.getElementById('exportBtn').onclick    = exportCSV;
+    document.getElementById('resetBtn').onclick     = resetAll;
 
     // Init
     (async ()=>{
@@ -394,4 +528,3 @@
   </script>
 </body>
 </html>
-
