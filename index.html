@@ -1073,5 +1073,93 @@
     window.addEventListener('offline', () => { if (app) { app.showNotification('Sem conexão com a internet', 'warning'); app.setConnectionStatus(false); } });
     document.addEventListener('visibilitychange', () => { if (!document.hidden && app && app.state.user) setTimeout(() => app.initSession(), 500); });
   </script>
+<script>
+/* ==== DIAGNÓSTICO VISUAL – sem DevTools ==== */
+(function setupQuickDiag(){
+  function mountPanel(){
+    const box = document.createElement('div');
+    box.id = 'diagBox';
+    box.style.cssText = 'position:fixed;bottom:14px;left:14px;max-width:48vw;max-height:50vh;overflow:auto;background:#0b1220;color:#e5e7eb;border-radius:10px;padding:12px 12px 4px;font:12px/1.35 monospace;z-index:99999;box-shadow:0 10px 30px rgba(0,0,0,.35)';
+    box.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><strong style="font:600 12px Inter,system-ui">Diagnóstico Supabase</strong><span id="diagStatus" style="opacity:.8"></span><button id="diagClose" style="margin-left:auto;background:#334155;border:none;color:#fff;padding:4px 8px;border-radius:6px;cursor:pointer">Fechar</button></div><pre id="diagOut" style="white-space:pre-wrap;margin:0"></pre>';
+    document.body.appendChild(box);
+    document.getElementById('diagClose').onclick=()=>box.remove();
+    return {box, out: document.getElementById('diagOut'), status: document.getElementById('diagStatus')};
+  }
+  function log(p, ...args){
+    const line = args.map(a => (typeof a==='object' ? JSON.stringify(a, null, 2) : String(a))).join(' ');
+    p.out.textContent += line + '\n';
+  }
+  async function run(){
+    const p = mountPanel();
+    const sb = (window.app && app.sb) ? app.sb : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    p.status.textContent = ' (executando...)';
+    try {
+      const { data:{ session }, error:sErr } = await sb.auth.getSession();
+      log(p, 'getSession.error:', sErr || null);
+      log(p, 'session:', session ? { id: session.user.id, email: session.user.email } : null);
+      if (!session) { log(p, '\n⚠️ Não logado. Clique em Entrar e rode o diagnóstico de novo.'); p.status.textContent = ' pronto'; return; }
+
+      const uid = session.user.id;
+
+      // 1) SELECT profile
+      const profSel = await sb.from('profiles').select('*').eq('id', uid).single();
+      log(p, '\nprofiles SELECT -> status:', profSel.status || null);
+      log(p, 'profiles.error:', profSel.error || null);
+      log(p, 'profiles.data:', profSel.data || null);
+
+      // Se não existe (PGRST116), tenta criar um perfil padrão
+      if (profSel.error && profSel.error.code === 'PGRST116') {
+        const profIns = await sb.from('profiles').insert({
+          id: uid,
+          email: session.user.email,
+          username: (session.user.email || '').split('@')[0],
+          bank_initial: 60000,
+          initial_trade_value: 2000,
+          percent_target: 10
+        }).select().single();
+        log(p, '\nprofiles INSERT -> status:', profIns.status || null);
+        log(p, 'profiles.insert.error:', profIns.error || null);
+        log(p, 'profiles.insert.data:', profIns.data || null);
+      }
+
+      // 2) SELECT trades
+      const tSel = await sb.from('trades').select('id').eq('user_id', uid).limit(1);
+      log(p, '\ntrades SELECT -> status:', tSel.status || null);
+      log(p, 'trades.select.error:', tSel.error || null);
+      log(p, 'trades.select.data:', tSel.data || null);
+
+      // 3) INSERT teste em trades (para pegar erro de sequence/RLS)
+      const today = new Date().toISOString().slice(0,10);
+      const tIns = await sb.from('trades').insert({
+        user_id: uid, trade_date: today, pair: 'TESTUSDT',
+        position: 'long', value_trade: 1, type: 'profit', percent: 1, result: 0.01, new_value: 1.01,
+        observations: '__diagnostic__'
+      }).select().single();
+      log(p, '\ntrades INSERT -> status:', tIns.status || null);
+      log(p, 'trades.insert.error:', tIns.error || null);
+      log(p, 'trades.insert.data:', tIns.data || null);
+
+      // Limpando o registro de teste
+      if (tIns.data && tIns.data.id) {
+        const del = await sb.from('trades').delete().eq('id', tIns.data.id);
+        log(p, 'cleanup delete.error:', del.error || null);
+      }
+      p.status.textContent = ' pronto';
+    } catch (e) {
+      log(p, '\nexception:', e && (e.message || e));
+      p.status.textContent = ' com erro';
+    }
+  }
+
+  const btn = document.createElement('button');
+  btn.textContent = '🔎 Diagnóstico';
+  btn.title = 'Executa testes de SELECT/INSERT no Supabase';
+  btn.className = 'btn btn-warning';
+  Object.assign(btn.style, {position:'fixed',bottom:'14px',left:'14px',zIndex:99998});
+  btn.onclick = run;
+  window.addEventListener('load', ()=> document.body.appendChild(btn));
+})();
+</script>
+
 </body>
 </html>
